@@ -26,10 +26,12 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// 1. Data Class
-data class Ingredient(val name: String, val baseQuantity: Double, val unit: String)
+data class Ingredient(
+val name: String, 
+val baseQuantity: Double, 
+val unit: String
+)
 
-// 2. ViewModel managing State
 class RecipeViewModel : ViewModel() {
     private val _servingSize = MutableStateFlow(1)
     val servingSize: StateFlow<Int> = _servingSize.asStateFlow()
@@ -47,14 +49,11 @@ class RecipeViewModel : ViewModel() {
     }
 }
 
-// 3. Main Screen Composable (Lifecycle-aware observation)
 @Composable
 fun RecipeScreen(viewModel: RecipeViewModel = viewModel()) {
-    // Uses lifecycle-aware component to observe state only when visible
     val servingSize by viewModel.servingSize.collectAsStateWithLifecycle()
 
     Column(modifier = Modifier.padding(16.dp)) {
-        // State Hoisted Stepper
         ServingSizeStepper(
             servingSize = servingSize,
             onIncrement = { viewModel.updateServingSize(servingSize + 1) },
@@ -65,7 +64,6 @@ fun RecipeScreen(viewModel: RecipeViewModel = viewModel()) {
         Text("Ingredients:", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Recomputes instantly across all rows
         viewModel.baseIngredients.forEach { ingredient ->
             val adjustedQuantity = ingredient.baseQuantity * servingSize
             Text("${ingredient.name}: $adjustedQuantity ${ingredient.unit}")
@@ -73,7 +71,6 @@ fun RecipeScreen(viewModel: RecipeViewModel = viewModel()) {
     }
 }
 
-// 4. State Hoisted Stepper Composable (Holds no state itself)
 @Composable
 fun ServingSizeStepper(
     servingSize: Int,
